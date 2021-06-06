@@ -1,5 +1,3 @@
-#include <string_view>
-
 #include <restinio/all.hpp>
 
 #include "../sgen/static.hpp"
@@ -12,7 +10,7 @@ int main() {
     router->http_get("/", [](auto req, [[maybe_unused]] auto params){
         req->create_response()
             .append_header(restinio::http_field::content_type, "text/html")
-            .set_body(std::string_view(_binary_static_index_html_start, _binary_static_index_html_size))
+            .set_body(sfile::index_html)
             .done();
         return restinio::request_accepted();
     });

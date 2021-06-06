@@ -30,10 +30,14 @@ src/%.o : src/%.cpp
 sgen/static.hpp :
 	mkdir -p sgen
 	echo "#pragma once" >sgen/static.hpp
+	echo "#include <string_view>" >sgen/static.hpp
 	echo 'extern "C" {' >>sgen/static.hpp
 	for f in ${STATIC_FILES}; do echo $$f | awk '{gsub(/\//, "_"); gsub(/\./, "_"); print "extern const char _binary_" $$0 "_start[];";}' >>sgen/static.hpp; done
 	for f in ${STATIC_FILES}; do echo $$f | awk '{gsub(/\//, "_"); gsub(/\./, "_"); print "extern const char _binary_" $$0 "_end[];";}' >>sgen/static.hpp; done
 	for f in ${STATIC_FILES}; do echo $$f | awk '{gsub(/\//, "_"); gsub(/\./, "_"); print "const size_t _binary_" $$0 "_size = _binary_" $$0 "_end - _binary_" $$0 "_start;";}' >>sgen/static.hpp; done
+	echo '}' >>sgen/static.hpp
+	echo 'namespace sfile {' >>sgen/static.hpp
+	for f in ${STATIC_FILES}; do echo $$f | awk '{gsub(/\//, "_"); gsub(/\./, "_"); gsub(/^static_/, ""); print "const std::string_view " $$0 " = std::string_view(_binary_static_" $$0 "_start, _binary_static_" $$0 "_size);";}' >>sgen/static.hpp; done
 	echo '}' >>sgen/static.hpp
 
 sgen/%.o : static/%
